@@ -7,11 +7,15 @@
 
 // install libjpeg `sudo apt-get install libjpeg-dev`
 // This code can be used as visual test of rgb to yuv transformation
-// RGB2YUV 256 range transformation based on page 4:
-// https://www.w3.org/Graphics/JPEG/jfif.pdf A bit more about jpeg(RU):
-// https://habr.com/ru/articles/454944/ About ranges of colors(RU):
-// https://projectorworld.ru/blog/793.html,
-// https://mechaweaponsvidya.wordpress.com/2015/05/03/full-range-ycbcr-in-jpeg/
+// # RGB2YUV 256 range transformation based on page 4:
+// - https://www.w3.org/Graphics/JPEG/jfif.pdf
+// # A bit more about jpeg(RU):
+// - https://habr.com/ru/articles/454944/
+// # About ranges of colors(RU):
+// - https://projectorworld.ru/blog/793.html
+// - https://mechaweaponsvidya.wordpress.com/2015/05/03/full-range-ycbcr-in-jpeg/
+// # Big review of color spaces
+// - https://www.compression.ru/download/articles/color_space/ch03.pdf
 
 extern RGB2YUV(const uint8_t *in, uint8_t *restrict out, size_t width,
                size_t height, ptrdiff_t in_stride, ptrdiff_t out_stride);
