@@ -1,9 +1,9 @@
-#include <jpeglib.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <jpeglib.h>
 
 // install libjpeg `sudo apt-get install libjpeg-dev`
 // This code can be used as visual test of rgb to yuv transformation
@@ -17,10 +17,10 @@
 // # Big review of color spaces
 // - https://www.compression.ru/download/articles/color_space/ch03.pdf
 
-extern RGB2YUV(const uint8_t *in, uint8_t *restrict out, size_t width,
+extern void RGB2YUV(const uint8_t *in, uint8_t *restrict out, size_t width,
                size_t height, ptrdiff_t in_stride, ptrdiff_t out_stride);
 
-extern YUV2RGB(const uint8_t *in, uint8_t *restrict out, size_t width,
+extern void YUV2RGB(const uint8_t *in, uint8_t *restrict out, size_t width,
                size_t height, ptrdiff_t in_stride, ptrdiff_t out_stride);
 
 typedef struct {
