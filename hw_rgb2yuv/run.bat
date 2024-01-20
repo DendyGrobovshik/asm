@@ -9,11 +9,9 @@
 :: 5. run.bat in terminal
 
 
-x64@echo off
-
 nasm -f win64 rgb_yuv.asm -o asm.obj
 
-cl rgb_yuv.c -I"C:\Users\Denis\Downloads\jpegsr9e2\jpeg-9e" /link /LIBPATH:"C:\Users\Denis\Downloads\jpegsr9e2\jpeg-9e\Release\x64" jpeg.lib asm.obj /LTCG /NODEFAULTLIB:libcmt.lib
+cl -Zi /Od rgb_yuv.c -I"C:\Users\Denis\Documents\jpegsr9e2\jpeg-9e" /link /LIBPATH:"C:\Users\Denis\Documents\jpegsr9e2\jpeg-9e\Release\x64" jpeg.lib asm.obj /LTCG /NODEFAULTLIB:libcmt.lib
 
 rgb_yuv.exe
 
