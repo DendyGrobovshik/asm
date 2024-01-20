@@ -132,6 +132,15 @@ void YUV3toYUV4(uint8_t *in3, uint8_t *out4, size_t new_size) {
   }
 }
 
+void YUV4toYUV3(uint8_t *in4, uint8_t *out3, size_t new_size) {
+  size_t pixels = new_size / 4;
+  for (size_t pixel = 0; pixel < pixels; pixel += 1) {
+    out3[pixel * 3] = in4[pixel * 4];
+    out3[pixel * 3 + 1] = in4[pixel * 4 + 1];
+    out3[pixel * 3 + 2] = in4[pixel * 4 + 2];
+  }
+}
+
 void write_jpeg(uint8_t *buffer, int width, int height, int out_components,
                 int is_rgb) {
   struct jpeg_compress_struct cinfo_out;
@@ -229,9 +238,12 @@ int main() {
             width / 2 + 6, height / 2, width, -width);
 
   start_time = __rdtsc();
-  RGB2YUV(in_buffer + offset, out_buffer_rgb2yuv + out_offset, width / 2 + 6,
-          height / 2, width, -width);
+  YUV3toYUV4(in_buffer, yuv4, buffer_size / 3 * 4);
+  RGB2YUV(in_buffer + offset, yuv4 + (out_offset / 3 * 4), width / 3 * 2 + 6,
+          height / 2, width, -(width / 3 * 4));
   end_time = __rdtsc();
+
+  YUV4toYUV3(yuv4, out_buffer_rgb2yuv, buffer_size / 3 * 4);
 
   printf("C RGB2YUV rdtsc time: %llu\n", (end_time - start_time) / 1000);
   print_solution_score(out_buffer_rgb2yuv_etalon, out_buffer_rgb2yuv,

@@ -25,6 +25,8 @@ cbminus  db 0, 0, 88, 0, 0, 0, 0, 0, 88, 0, 0, 0, 0, 0, 88, 0, 0, 0, 0, 0, 88, 0
 crplus   db 103, 1, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 0, 0
 crminus  db 0, 0, 183, 0, 0, 0, 0, 0, 183, 0, 0, 0, 0, 0, 183, 0, 0, 0, 0, 0, 183, 0, 0, 0, 0, 0, 183, 0, 0, 0, 0, 0
 
+yuv3toyuv4 db 0, 1, 2, 128, 3, 4, 5, 128, 6, 7, 8, 128, 9, 10, 11, 128, 12, 13, 14, 128
+
 n128     db 128, 0
 n1       db 0, 1
 
@@ -33,7 +35,6 @@ n1       db 0, 1
     global  YUV2RGB
     extern  printf
 
-; TODO: yuv3 replace with yuv4
 RGB2YUV:
     push rbp
     mov  rbp, rsp
@@ -67,7 +68,7 @@ RGB2YUV:
     
     mov rax, r10
     sub rax, rcx
-    cmp rax, 15
+    cmp rax, 20
     jge simd_rgb2yuv
     simd_rgb2yuv_back:
 
@@ -77,9 +78,15 @@ RGB2YUV:
     
     sisd_rgb2yuv:
 
-    mov r13b, [r8 + rcx]     ; R
-    mov r14b, [r8 + rcx + 1] ; G
-    mov r15b, [r8 + rcx + 2] ; B
+    mov r12, rcx
+    shr  r12, 1
+    mov  r11, r12
+    shr  r11, 1
+    add  r12, r11
+
+    mov r13b, [r8 + r12]     ; R
+    mov r14b, [r8 + r12 + 1] ; G
+    mov r15b, [r8 + r12 + 2] ; B
 
     mov ax,         r13w
     mov r12w,       77
@@ -128,13 +135,19 @@ RGB2YUV:
     shr r11w,           8
     mov [r9 + rcx + 2], r11b
 
-    add rcx, 3
+    add rcx, 4
     jmp sisd_rgb2yuv_back
 
     simd_rgb2yuv:
 
-    vmovdqu xmm0, [r8 + rcx]
-    vinserti128 ymm0, [r8 + rcx + 6], 1
+    mov r12, rcx
+    shr  r12, 1
+    mov  r11, r12
+    shr  r11, 1
+    add  r12, r11
+
+    vmovdqu xmm0, [r8 + r12]
+    vinserti128 ymm0, [r8 + r12 + 6], 1
     vmovdqa ymm1, [rel + rspread]
     vpshufb ymm1, ymm0, ymm1
     vmovdqa ymm2, [rel + gspread]
@@ -165,19 +178,18 @@ RGB2YUV:
 
     vpsrlw    ymm8,            8
     vextractf128 xmm6, ymm8, 1
-    vpackuswb ymm8,            ymm6
-    vmovq     r11,             xmm8
-    mov       [r9 + rcx],      r11
-    pextrq r11, xmm8, 1
-    mov       [r9 + rcx + 8],  r11d
-    shr       r11,             32
-    mov       [r9 + rcx + 12], r11w
-    shr       r11d,            16
-    mov       [r9 + rcx + 14], r11b
+    vpackuswb ymm8, ymm6
+    vmovdqa xmm6, xmm8
+    vmovdqa xmm10, [rel + yuv3toyuv4]
+    vpshufb xmm8, xmm10
+    movdqu [r9 + rcx], xmm8
+ 
+    pextrd r11d, xmm6, 3
+    mov [r9 + rcx + 16],  r11d
 
-    add rcx, 15
-    sub rax, 15
-    cmp rax, 15
+    add rcx, 20
+    sub rax, 20
+    cmp rax, 20
     jge simd_rgb2yuv
 
     jmp simd_rgb2yuv_back
