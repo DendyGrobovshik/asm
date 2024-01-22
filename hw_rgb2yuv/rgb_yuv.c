@@ -59,7 +59,7 @@ RGB ycbcr2rgb(YCbCr ycb) {
   rgb.r = (uint8_t)r;
   float g = ycb.y - 0.34414 * (ycb.cb - 128) - 0.71414 * (ycb.cr - 128);
   rgb.g = (uint8_t)g;
-  float b = ycb.y + 1.772 * (ycb.cb - 128);
+  float b = max(ycb.y + 1.772 * (ycb.cb - 128), 0.0);
   rgb.b = (uint8_t)b;
 
   return rgb;
@@ -235,11 +235,11 @@ int main() {
 
   // RGB2YUV
   c_RGB2YUV(in_buffer + offset, out_buffer_rgb2yuv_etalon + out_offset,
-            width / 2 + 6, height / 2, width, -width);
+            width / 2 + 9, height / 2, width, -width);
 
   start_time = __rdtsc();
   YUV3toYUV4(in_buffer, yuv4, buffer_size / 3 * 4);
-  RGB2YUV(in_buffer + offset, yuv4 + (out_offset / 3 * 4), width / 3 * 2 + 6,
+  RGB2YUV(in_buffer + offset, yuv4 + (out_offset / 3 * 4), width / 3 * 2 / 4 + 2,
           height / 2, width, -(width / 3 * 4));
   end_time = __rdtsc();
 
@@ -255,11 +255,11 @@ int main() {
 
   // YUV2RGB
   c_YUV2RGB(out_buffer_rgb2yuv_etalon + offset,
-            out_buffer_yuv2rgb_etalon + out_offset, width / 4, height / 4,
+            out_buffer_yuv2rgb_etalon + out_offset, width / 4 + 9, height / 4,
             width, -width);
 
   start_time = __rdtsc();
-  YUV2RGB(yuv4 + (offset / 3 * 4), out_buffer_yuv2rgb + out_offset, width / 3,
+  YUV2RGB(yuv4 + (offset / 3 * 4), out_buffer_yuv2rgb + out_offset, width / 3 / 4 + 2,
           height / 4, width / 3 * 4, -width);
   end_time = __rdtsc();
 
