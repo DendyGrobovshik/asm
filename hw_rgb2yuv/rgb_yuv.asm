@@ -1,4 +1,4 @@
-    SECTION .data
+    SECTION .rdata
 
 align 32 ; vmovdqa to ymm
 
@@ -158,9 +158,9 @@ RGB2YUV:
     vpackuswb ymm13,      ymm15
     vmovdqa   xmm15,      xmm13
     vpshufb   xmm13,      xmm14
-    movdqu    [r9 + rcx], xmm13
+    vmovdqu    [r9 + rcx], xmm13
  
-    pextrd r11d, xmm15, 3
+    vpextrd r11d, xmm15, 3
     mov [r9 + rcx + 16], r11d
 
     add r12, 15
